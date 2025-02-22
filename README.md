@@ -36,7 +36,7 @@ A React-based news aggregator that pulls articles from multiple sources includin
 
 1. Clone the repository
 ```bash
-git clone [repository-url]
+git clone https://github.com/yashpatel1797/news-aggregator.git
 cd news-aggregator
 ```
 
@@ -84,19 +84,19 @@ docker login
 
 3. Tag your image
 ```bash
-docker tag news-aggregator yourusername/news-aggregator:latest
+docker tag news-aggregator yesgpatel263/news-aggregator:latest
 ```
 
 4. Push to Docker Hub
 ```bash
-docker push yourusername/news-aggregator:latest
+docker push yesgpatel263/news-aggregator:latest
 ```
 
 5. Share with interviewer
 ```
 # Instructions for interviewer
-docker pull yourusername/news-aggregator:latest
-docker run -p 3000:80 yourusername/news-aggregator:latest
+docker pull yesgpatel263/news-aggregator:latest
+docker run -p 3000:80 yesgpatel263/news-aggregator:latest
 ```
 
 ## Project Structure
