@@ -19,13 +19,13 @@ export const fetchFromNewsApi = async (params: SearchParams): Promise<Article[]>
           category: params.categories?.[0] || 'general',
         } : {
           q: params.query || 'news',
-          from: formatDate.newsApi(params.dateFrom),
-          to: formatDate.newsApi(params.dateTo),
         }),
         page: params.page,
         pageSize: params.pageSize,
         language: 'en',
-        sortBy: 'publishedAt'
+        sortBy: 'publishedAt',
+        from: formatDate.newsApi(params.dateFrom),
+        to: formatDate.newsApi(params.dateTo),
       }
     });
 
@@ -83,7 +83,7 @@ export const fetchFromNYTimes = async (params: SearchParams): Promise<Article[]>
     if (params.categories?.length) {
       queryParams.fq = `news_desk:(${params.categories.map(c => `"${c}"`).join(' OR ')})`;
     }
-    
+
     const response = await nytimesApiClient.get('/articlesearch.json', {
       params: queryParams
     });
