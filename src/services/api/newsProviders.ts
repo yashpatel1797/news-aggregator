@@ -6,6 +6,7 @@ import {
     transformGuardianArticle,
     transformNYTimesArticle 
   } from '../transformer/articleTransformer.ts';
+import axios from 'axios';
 
 export const fetchFromNewsApi = async (params: SearchParams): Promise<Article[]> => {
     
@@ -62,47 +63,42 @@ export const fetchFromGuardian = async (params: SearchParams): Promise<Article[]
 };
 
 export const fetchFromNYTimes = async (params: SearchParams): Promise<Article[]> => {
-
   try {
     await delay(1000);
-    const dateQuery = buildNYTimesDateQuery(params);
-    const fq = buildNYTimesFilterQuery(params, dateQuery);
 
+    const queryParams: Record<string, string | number | undefined> = {
+      q: params.query || 'news',
+      sort: 'newest',
+      fl: 'headline,abstract,web_url,pub_date,byline,section_name,multimedia,lead_paragraph,_id',
+      page: params.page ? params.page - 1 : 0,
+    };
+
+    if (params.dateFrom) {
+      queryParams.begin_date = formatDate.nyTimes(params.dateFrom);
+    }
+    if (params.dateTo) {
+      queryParams.end_date = formatDate.nyTimes(params.dateFrom);
+    }
+
+    if (params.categories?.length) {
+      queryParams.fq = `news_desk:(${params.categories.map(c => `"${c}"`).join(' OR ')})`;
+    }
+    
     const response = await nytimesApiClient.get('/articlesearch.json', {
-      params: {
-        q: params.query || '',
-        fq: fq || undefined,
-        sort: 'newest',
-        fl: 'headline,abstract,web_url,pub_date,byline,section_name,multimedia,lead_paragraph,_id',
-        page: params.page - 1,
-        'page-size': params.pageSize,
-      }
+      params: queryParams
     });
 
-    return response.data.response.docs?.map(transformNYTimesArticle) || [];
+    if (!response.data.response?.docs) {
+      console.warn('No docs in NY Times response');
+      return [];
+    }
+
+    return response.data.response.docs.map(transformNYTimesArticle);
   } catch (error) {
     console.error('NY Times API Error:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('NY Times API Response:', error.response?.data);
+    }
     return [];
   }
 };
-
-function buildNYTimesDateQuery(params: SearchParams): string[] {
-  const dateQuery = [];
-  if (params.dateFrom) {
-    dateQuery.push(`pub_date:>=${formatDate.nyTimes(params.dateFrom)}`);
-  }
-  if (params.dateTo) {
-    dateQuery.push(`pub_date:<=${formatDate.nyTimes(params.dateTo)}`);
-  }
-  return dateQuery;
-}
-
-function buildNYTimesFilterQuery(params: SearchParams, dateQuery: string[]): string {
-  const filters = [
-    params.categories?.length ? 
-      `news_desk:(${params.categories.map(c => `"${c}"`).join(' OR ')})` : null,
-    dateQuery.length ? dateQuery.join(' AND ') : null
-  ].filter(Boolean);
-  
-  return filters.join(' AND ');
-}

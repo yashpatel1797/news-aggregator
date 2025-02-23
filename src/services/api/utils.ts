@@ -9,7 +9,7 @@ export const formatDate = {
 
   nyTimes: (dateString: string | null): string | undefined => {
     if (!dateString) return undefined;
-    return dateString.split('-').join('');
+    return dateString.replace(/-/g, '');
   },
 
   guardian: (dateString: string | null) => dateString || undefined
