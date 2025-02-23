@@ -11,19 +11,16 @@ export const fetchArticles = async (params: SearchParams): Promise<{
     const fetchPromises: Promise<Article[]>[] = [];
 
     if (sourcesToFetch.includes('newsapi')) {
-        console.log("newsapi");
         
       fetchPromises.push(fetchFromNewsApi(params));
       await delay(300);
     }
     if (sourcesToFetch.includes('guardian')) {
-        console.log("guardian");
         
       fetchPromises.push(fetchFromGuardian(params));
       await delay(300);
     }
     if (sourcesToFetch.includes('nytimes')) {
-        console.log("nytime");
         
       fetchPromises.push(fetchFromNYTimes(params));
     }

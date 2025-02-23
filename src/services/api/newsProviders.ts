@@ -8,7 +8,6 @@ import {
   } from '../transformer/articleTransformer.ts';
 
 export const fetchFromNewsApi = async (params: SearchParams): Promise<Article[]> => {
-    console.log("NewsAPI");
     
   try {
     const endpoint = params.categories?.length ? '/top-headlines' : '/everything';
@@ -42,13 +41,12 @@ export const fetchFromNewsApi = async (params: SearchParams): Promise<Article[]>
 };
 
 export const fetchFromGuardian = async (params: SearchParams): Promise<Article[]> => {
-    console.log("GuardianAPI");
-    
+
   try {
     const response = await guardianApiClient.get('/search', {
       params: {
-        q: params.query || '',
-        'section': params.categories?.join('|') || '',
+        q: params.query || 'news',
+        'section': params.categories?.join('|') || ['technology', 'health', 'general', 'science', 'sports'],
         'from-date': formatDate.guardian(params.dateFrom),
         'to-date': formatDate.guardian(params.dateTo),
         'show-fields': 'all',
@@ -64,8 +62,7 @@ export const fetchFromGuardian = async (params: SearchParams): Promise<Article[]
 };
 
 export const fetchFromNYTimes = async (params: SearchParams): Promise<Article[]> => {
-    console.log('NYtimesAPI');
-    
+
   try {
     await delay(1000);
     const dateQuery = buildNYTimesDateQuery(params);
